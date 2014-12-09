@@ -64,13 +64,4 @@ public interface IInputConsumer {
      * @param direction the direction it was scrolled
      */
     public void onMouseScrolled(int x, int y, int direction);
-
-    /**
-     * Returns whether the mouse was clicked within the bounds of this element
-     *
-     * @param x the x position clicked
-     * @param y the y position clicked
-     * @return whether it was in the bounds
-     */
-    public boolean wasClickInBounds(int x, int y);
 }

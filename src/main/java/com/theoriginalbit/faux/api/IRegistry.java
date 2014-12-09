@@ -19,6 +19,8 @@ import java.util.ArrayList;
 
 /**
  * A common interface that defines the functionality of a generic registry within the Faux context.
+ * A registry contains references of possible instances within the running context, as opposed to a
+ * manager which contains the instances of the objects.
  *
  * @author theoriginalbit
  */

@@ -17,6 +17,8 @@ package com.theoriginalbit.faux.api;
 
 /**
  * A common interface that defines the functionality of a generic manager within the Faux context.
+ * A manager is what contains the instances of the objects within the running context, as opposed to
+ * an {@link com.theoriginalbit.faux.api.IRegistry} which contains references of possible instances.
  *
  * @author theoriginalbit
  */

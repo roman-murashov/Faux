@@ -13,26 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.theoriginalbit.faux.api;
+package com.theoriginalbit.faux;
 
 /**
- * A common interface defining the accessible methods within the Faux instance
- *
  * @author theoriginalbit
  */
-public interface IFauxInstance {
-    /**
-     * @return the input manager for the Faux application
-     */
-    public IManager<IInputConsumer> getInputManager();
-
-    /**
-     * @return the tick manager for the Faux application
-     */
-    public IManager<ITicking> getTickManager();
-
-    /**
-     * @return the render manager for the Faux application
-     */
-    public IManager<IRendered> getRenderManager();
+public class AppInfo {
+    public static final String NAME = "Faux";
+    public static final String VERSION = "0.1";
 }
