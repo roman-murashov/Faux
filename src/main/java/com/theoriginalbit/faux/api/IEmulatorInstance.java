@@ -16,23 +16,23 @@
 package com.theoriginalbit.faux.api;
 
 /**
- * A common interface defining the accessible methods within the Faux instance
+ * A common interface defining the accessible methods within the emulator instance
  *
  * @author theoriginalbit
  */
-public interface IFauxInstance {
+public interface IEmulatorInstance {
     /**
-     * @return the input manager for the Faux application
+     * @return the input manager for the emulator application
      */
     public IManager<IInputConsumer> getInputManager();
 
     /**
-     * @return the tick manager for the Faux application
+     * @return the tick manager for the emulator application
      */
     public IManager<ITicking> getTickManager();
 
     /**
-     * @return the render manager for the Faux application
+     * @return the render manager for the emulator application
      */
     public IManager<IRendered> getRenderManager();
 }

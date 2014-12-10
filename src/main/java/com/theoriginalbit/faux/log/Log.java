@@ -16,7 +16,7 @@
 package com.theoriginalbit.faux.log;
 
 import com.theoriginalbit.faux.AppInfo;
-import com.theoriginalbit.faux.Faux;
+import com.theoriginalbit.faux.Emulator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -26,7 +26,7 @@ import java.io.PrintStream;
  * @author theoriginalbit
  */
 public final class Log {
-    private static final Logger logger = LogManager.getLogger(Faux.class);
+    private static final Logger logger = LogManager.getLogger(Emulator.class);
     private static final String SEPARATOR = "****************************************";
     private static final String TRACE = "*  at %s%s";
     private static boolean configured = false;

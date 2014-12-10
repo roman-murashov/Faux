@@ -26,23 +26,24 @@ import java.io.File;
 /**
  * @author theoriginalbit
  */
-public final class Faux implements IFauxInstance {
+public final class Emulator implements IEmulatorInstance {
     public static final Application app = Application.getApplication();
     private final File dataStore;
     private final JFrame window;
     private final Canvas contentCanvas;
 
-    public Faux(JFrame frame) {
+    public Emulator(JFrame frame) {
         dataStore = OperatingSystem.getDataStore();
         window = frame;
         contentCanvas = new Canvas();
+        contentCanvas.setIgnoreRepaint(true);
 
         Bootstrap.initialise(this);
     }
 
     /* USED IN THE DEVELOPMENT ENVIRONMENT */
     public static void main(String[] args) {
-        new Faux(new JFrame());
+        new Emulator(new JFrame());
     }
 
     public final void shutdown() {

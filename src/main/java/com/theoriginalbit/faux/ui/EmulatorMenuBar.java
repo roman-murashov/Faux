@@ -16,7 +16,7 @@
 package com.theoriginalbit.faux.ui;
 
 import com.theoriginalbit.faux.AppInfo;
-import com.theoriginalbit.faux.Faux;
+import com.theoriginalbit.faux.Emulator;
 import com.theoriginalbit.faux.util.DialogUtils;
 import com.theoriginalbit.faux.util.OperatingSystem;
 
@@ -27,13 +27,13 @@ import java.awt.event.ActionListener;
 /**
  * @author theoriginalbit
  */
-public final class FauxMenuBar extends JMenuBar {
-    private final Faux faux;
+public final class EmulatorMenuBar extends JMenuBar {
+    private final Emulator emulator;
     private final JFrame parent;
 
-    public FauxMenuBar(JFrame frame, Faux fauxInstance) {
+    public EmulatorMenuBar(JFrame frame, Emulator emulatorInstance) {
         parent = frame;
-        faux = fauxInstance;
+        emulator = emulatorInstance;
 
         addFileMenu();
         addDebugMenu();
@@ -68,7 +68,7 @@ public final class FauxMenuBar extends JMenuBar {
             menuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    if (DialogUtils.showQuitDialog(parent) == JOptionPane.OK_OPTION) faux.shutdown();
+                    if (DialogUtils.showQuitDialog(parent) == JOptionPane.OK_OPTION) emulator.shutdown();
                 }
             });
             menu.add(menuItem);

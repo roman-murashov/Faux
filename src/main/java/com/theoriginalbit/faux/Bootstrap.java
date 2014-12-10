@@ -20,7 +20,7 @@ import com.apple.eawt.AppEvent;
 import com.apple.eawt.QuitHandler;
 import com.apple.eawt.QuitResponse;
 import com.theoriginalbit.faux.log.Log;
-import com.theoriginalbit.faux.ui.FauxMenuBar;
+import com.theoriginalbit.faux.ui.EmulatorMenuBar;
 import com.theoriginalbit.faux.util.DialogUtils;
 import com.theoriginalbit.faux.util.OperatingSystem;
 
@@ -31,11 +31,11 @@ import java.awt.*;
  * @author theoriginalbit
  */
 public final class Bootstrap {
-    public static void initialise(final Faux faux) {
+    public static void initialise(final Emulator emulator) {
         Log.info("%s starting...", AppInfo.NAME);
         setLookAndFeel();
-        initialiseMenuBar(faux);
-        initialiseWindow(faux);
+        initialiseMenuBar(emulator);
+        initialiseWindow(emulator);
     }
 
     private static void setLookAndFeel() {
@@ -68,15 +68,15 @@ public final class Bootstrap {
         frame.dispose();
     }
 
-    private static void initialiseWindow(final Faux faux) {
-        final JFrame window = faux.getWindow();
+    private static void initialiseWindow(final Emulator emulator) {
+        final JFrame window = emulator.getWindow();
 
         // setup the window
         window.getContentPane().removeAll();
         window.setTitle(AppInfo.NAME);
 
         // add the menu bar
-        window.setJMenuBar(new FauxMenuBar(window, faux));
+        window.setJMenuBar(new EmulatorMenuBar(window, emulator));
 
         // create the window
         window.setPreferredSize(new Dimension(800, 600));
@@ -89,7 +89,7 @@ public final class Bootstrap {
      * Sets up the OS specific menu bars where appropriate. This is primarily OS X hacks to make
      * Java use the native application menu bar, but this may be expanded in the future.
      */
-    private static void initialiseMenuBar(final Faux faux) {
+    private static void initialiseMenuBar(final Emulator emulator) {
         // OS X has it's own application menu bar, it is about to become functional
         if (OperatingSystem.getPlatform() == OperatingSystem.OSX) {
             Log.info("OS X detected, making %s use the OS X menu bar", AppInfo.NAME);
@@ -97,20 +97,20 @@ public final class Bootstrap {
             System.setProperty("apple.laf.useScreenMenuBar", "true");
 
             // setup the about menu item
-            Faux.app.setAboutHandler(new AboutHandler() {
+            Emulator.app.setAboutHandler(new AboutHandler() {
                 @Override
                 public void handleAbout(AppEvent.AboutEvent aboutEvent) {
-                    DialogUtils.showAboutDialog(faux.getWindow());
+                    DialogUtils.showAboutDialog(emulator.getWindow());
                 }
             });
 
             // setup the quit menu item so it confirms before quitting
-            Faux.app.setQuitHandler(new QuitHandler() {
+            Emulator.app.setQuitHandler(new QuitHandler() {
                 @Override
                 public void handleQuitRequestWith(AppEvent.QuitEvent quitEvent, QuitResponse quitResponse) {
                     // if the user selected the ok option, we must shut everything down
-                    if (DialogUtils.showQuitDialog(faux.getWindow()) == JOptionPane.OK_OPTION) {
-                        faux.shutdown();
+                    if (DialogUtils.showQuitDialog(emulator.getWindow()) == JOptionPane.OK_OPTION) {
+                        emulator.shutdown();
                         quitResponse.performQuit();
                     }
                     // stops the application quitting
