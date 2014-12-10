@@ -15,12 +15,34 @@
  */
 package com.theoriginalbit.faux.api;
 
+import com.theoriginalbit.faux.api.computercraft.IDevice;
+
 /**
  * A common interface defining the accessible methods within the emulator instance
  *
  * @author theoriginalbit
  */
 public interface IEmulatorInstance {
+    /**
+     * @return whether the emulator is running
+     */
+    public boolean isRunning();
+
+    /**
+     * @return the height of the drawable area
+     */
+    public int getWidth();
+
+    /**
+     * @return the width of the drawable area
+     */
+    public int getHeight();
+
+    /**
+     * @return the system time in milliseconds
+     */
+    public long getSystemTime();
+
     /**
      * @return the input manager for the emulator application
      */
@@ -35,4 +57,14 @@ public interface IEmulatorInstance {
      * @return the render manager for the emulator application
      */
     public IManager<IRendered> getRenderManager();
+
+    /**
+     * @return the device manager for the emulator application
+     */
+    public IManager<IDevice> getDeviceManager();
+
+    /**
+     * @return the window manager for the emulator application
+     */
+    public IManager<IWindow> getWindowManager();
 }

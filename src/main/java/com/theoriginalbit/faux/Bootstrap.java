@@ -23,9 +23,19 @@ import com.theoriginalbit.faux.log.Log;
 import com.theoriginalbit.faux.ui.EmulatorMenuBar;
 import com.theoriginalbit.faux.util.DialogUtils;
 import com.theoriginalbit.faux.util.OperatingSystem;
+import org.lwjgl.LWJGLException;
+import org.lwjgl.Sys;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.Util;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
+import static org.lwjgl.opengl.GL11.*;
 
 /**
  * @author theoriginalbit
@@ -36,6 +46,11 @@ public final class Bootstrap {
         setLookAndFeel();
         initialiseMenuBar(emulator);
         initialiseWindow(emulator);
+        initialiseLWJGL(emulator);
+        initialiseGame(emulator);
+    }
+
+    private static void initialiseGame(final Emulator emulator) {
     }
 
     private static void setLookAndFeel() {
@@ -74,9 +89,23 @@ public final class Bootstrap {
         // setup the window
         window.getContentPane().removeAll();
         window.setTitle(AppInfo.NAME);
+        window.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        window.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                if (DialogUtils.showQuitDialog(emulator.getWindow()) == JOptionPane.OK_OPTION) {
+                    emulator.shutdown();
+                }
+            }
+        });
 
         // add the menu bar
         window.setJMenuBar(new EmulatorMenuBar(window, emulator));
+
+        // add the canvas
+        final Canvas canvas = emulator.getCanvas();
+        canvas.setIgnoreRepaint(true);
+        window.add(canvas);
 
         // create the window
         window.setPreferredSize(new Dimension(800, 600));
@@ -97,7 +126,7 @@ public final class Bootstrap {
             System.setProperty("apple.laf.useScreenMenuBar", "true");
 
             // setup the about menu item
-            Emulator.app.setAboutHandler(new AboutHandler() {
+            Emulator.APP.setAboutHandler(new AboutHandler() {
                 @Override
                 public void handleAbout(AppEvent.AboutEvent aboutEvent) {
                     DialogUtils.showAboutDialog(emulator.getWindow());
@@ -105,7 +134,7 @@ public final class Bootstrap {
             });
 
             // setup the quit menu item so it confirms before quitting
-            Emulator.app.setQuitHandler(new QuitHandler() {
+            Emulator.APP.setQuitHandler(new QuitHandler() {
                 @Override
                 public void handleQuitRequestWith(AppEvent.QuitEvent quitEvent, QuitResponse quitResponse) {
                     // if the user selected the ok option, we must shut everything down
@@ -118,5 +147,50 @@ public final class Bootstrap {
                 }
             });
         }
+    }
+
+    private static void initialiseLWJGL(final Emulator emulator) {
+        try {
+            Log.info("Initialising LWJGL Version: " + Sys.getVersion());
+
+            // setup the display
+            Display.setParent(emulator.getCanvas());
+            Display.setTitle(AppInfo.NAME);
+            Display.create();
+
+            glEnable(GL_TEXTURE_2D); // enable textures
+            Util.checkGLError();
+            glDisable(GL_DEPTH_TEST); // 2D textures don't have depth
+
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            Util.checkGLError();
+
+            setupDisplay(emulator);
+
+            // setup the input
+            Mouse.create();
+            Keyboard.create();
+            Keyboard.enableRepeatEvents(true);
+        } catch (LWJGLException e) {
+            Log.fatal("Failed to initialise LWJGL");
+            e.printStackTrace();
+            emulator.shutdown();
+        }
+    }
+
+    public static void setupDisplay(final Emulator emulator) {
+        if (!Display.isCreated()) {
+            Log.info("Attempting to setup the display without display created");
+        }
+
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+
+        glOrtho(0, emulator.getWidth(), emulator.getHeight(), 0, -1, 1);
+        glMatrixMode(GL_MODELVIEW);
+
+        glClearColor(0.372549F, 0.388235F, 0.3647059F, 1.0F);
+        glViewport(0, 0, emulator.getWidth(), emulator.getHeight());
     }
 }
