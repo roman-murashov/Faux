@@ -28,14 +28,13 @@ import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.Util;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
-import static org.lwjgl.opengl.GL11.*;
 
 /**
  * @author theoriginalbit
@@ -51,6 +50,7 @@ public final class Bootstrap {
     }
 
     private static void initialiseGame(final Emulator emulator) {
+        // TODO: initialise emulator
     }
 
     private static void setLookAndFeel() {
@@ -96,6 +96,12 @@ public final class Bootstrap {
                 if (DialogUtils.showQuitDialog(emulator.getWindow()) == JOptionPane.OK_OPTION) {
                     emulator.shutdown();
                 }
+            }
+        });
+        window.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowGainedFocus(WindowEvent e) {
+                emulator.getCanvas().requestFocusInWindow();
             }
         });
 
@@ -156,17 +162,25 @@ public final class Bootstrap {
             // setup the display
             Display.setParent(emulator.getCanvas());
             Display.setTitle(AppInfo.NAME);
+            Display.setResizable(true);
             Display.create();
 
-            glEnable(GL_TEXTURE_2D); // enable textures
+            GL11.glEnable(GL11.GL_TEXTURE_2D); // enable textures
             Util.checkGLError();
-            glDisable(GL_DEPTH_TEST); // 2D textures don't have depth
+            GL11.glDisable(GL11.GL_DEPTH_TEST); // 2D textures don't have depth
 
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
             Util.checkGLError();
 
-            setupDisplay(emulator);
+            GL11.glMatrixMode(GL11.GL_PROJECTION);
+            GL11.glLoadIdentity();
+
+            GL11.glOrtho(0, emulator.getWidth(), emulator.getHeight(), 0, -1, 1);
+            GL11.glMatrixMode(GL11.GL_MODELVIEW);
+
+            GL11.glClearColor(0.275F, 0.275F, 0.275F, 1.0F);
+            GL11.glViewport(0, 0, emulator.getWidth(), emulator.getHeight());
 
             // setup the input
             Mouse.create();
@@ -177,20 +191,5 @@ public final class Bootstrap {
             e.printStackTrace();
             emulator.shutdown();
         }
-    }
-
-    public static void setupDisplay(final Emulator emulator) {
-        if (!Display.isCreated()) {
-            Log.info("Attempting to setup the display without display created");
-        }
-
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-
-        glOrtho(0, emulator.getWidth(), emulator.getHeight(), 0, -1, 1);
-        glMatrixMode(GL_MODELVIEW);
-
-        glClearColor(0.372549F, 0.388235F, 0.3647059F, 1.0F);
-        glViewport(0, 0, emulator.getWidth(), emulator.getHeight());
     }
 }

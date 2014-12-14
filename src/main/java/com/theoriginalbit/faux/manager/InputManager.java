@@ -20,6 +20,10 @@ import com.theoriginalbit.faux.api.IInputConsumer;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
+import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+
 /**
  * @author theoriginalbit
  */
@@ -28,7 +32,20 @@ public class InputManager extends Manager<IInputConsumer> {
     private int mouseLastX = 0, mouseLastY = 0, eventButton = -1;
 
     public InputManager(final IEmulatorInstance emulatorInstance) {
+        super("Input");
         emulator = emulatorInstance;
+    }
+
+    public static String getClipboardContents() {
+        try {
+            final Transferable transferable = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+
+            if (transferable != null && transferable.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+                return (String) transferable.getTransferData(DataFlavor.stringFlavor);
+            }
+        } catch (Exception ignored) {
+        }
+        return "";
     }
 
     @Override
@@ -46,7 +63,7 @@ public class InputManager extends Manager<IInputConsumer> {
     }
 
     @Override
-    public void invalidate(IInputConsumer item) {
+    public void manage(IInputConsumer item) {
         // NO-OP
     }
 
@@ -63,7 +80,7 @@ public class InputManager extends Manager<IInputConsumer> {
             }
         }
 
-        if (!Mouse.isButtonDown(eventButton)) {
+        if (eventButton != -1 && !Mouse.isButtonDown(eventButton)) {
             eventButton = -1;
             for (IInputConsumer consumer : items) {
                 consumer.onMouseRelease(x, y, eventButton);

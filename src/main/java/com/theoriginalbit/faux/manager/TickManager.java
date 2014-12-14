@@ -21,20 +21,17 @@ import com.theoriginalbit.faux.api.ITicking;
 import com.theoriginalbit.faux.log.Log;
 import org.lwjgl.Sys;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 /**
  * @author theoriginalbit
  */
-public class TickManager implements Runnable, IManager<ITicking> {
+public class TickManager extends Manager<ITicking> implements Runnable, IManager<ITicking> {
     private static final long MAX_SLEEP = 50L;
     private static final float SLOW_TICK = 80.0F;
-    private final HashMap<ITicking, Boolean> tickers = new HashMap<ITicking, Boolean>();
     private final IEmulatorInstance emulator;
     private float lastTick = 0.0F;
 
     public TickManager(final IEmulatorInstance emulatorInstance) {
+        super("Tick");
         emulator = emulatorInstance;
     }
 
@@ -44,45 +41,15 @@ public class TickManager implements Runnable, IManager<ITicking> {
     }
 
     @Override
-    public void invalidate(ITicking item) {
-        synchronized (tickers) {
-            if (!tickers.containsKey(item)) {
-                Log.warn("Trying to invalidate an ITicking which was not registered");
-                return;
-            }
-            tickers.put(item, true);
-        }
+    public void manage(ITicking item) {
+        // NO-OP
     }
 
-    @Override
-    public boolean register(ITicking item) {
-        synchronized (tickers) {
-            if (tickers.containsKey(item)) {
-                Log.warn("Trying to register an ITicking which is already registered");
-                return false;
-            }
-            return tickers.put(item, false);
-        }
-    }
-
-    @Override
-    public boolean unregister(ITicking item) {
-        synchronized (tickers) {
-            if (!tickers.containsKey(item)) {
-                Log.warn("Trying to unregister an ITicking which was not registered");
-                return false;
-            }
-            return tickers.remove(item);
-        }
-    }
-
-    @Override
-    public ArrayList<ITicking> getRegisteredItems() {
-        synchronized (tickers) {
-            return new ArrayList<ITicking>(tickers.keySet());
-        }
-    }
-
+    /**
+     * Get the time in milliseconds
+     *
+     * @return The system time in milliseconds
+     */
     public long getSystemTime() {
         return Sys.getTime() * 1000L / Sys.getTimerResolution();
     }
@@ -93,11 +60,9 @@ public class TickManager implements Runnable, IManager<ITicking> {
             try {
                 long tickStart = getSystemTime();
 
-                synchronized (tickers) {
-                    for (ITicking ticking : tickers.keySet()) {
+                synchronized (items) {
+                    for (ITicking ticking : items) {
                         ticking.onTick();
-                        // it is no longer dirty, so set the dirty flag in case
-                        tickers.put(ticking, false);
                     }
                 }
 

@@ -49,21 +49,46 @@ public interface IEmulatorInstance {
     public IManager<IInputConsumer> getInputManager();
 
     /**
+     * The tick manager manages all objects within the emulator which must tick every game loop
+     *
      * @return the tick manager for the emulator application
      */
     public IManager<ITicking> getTickManager();
 
     /**
+     * The render manager maintains all rendered elements within the Emulator with the exception
+     * of a {@link com.theoriginalbit.faux.api.IWindow} which have their own manager since they
+     * must respect a Z-Index while rendering.
+     * <p/>
+     * Invoking the `manage` method on this will render everything to the screen, while invoking
+     * the parametrised `manage` method will have no effect.
+     * <p/>
+     * {@link com.theoriginalbit.faux.api.IRendered} elements are the last to be rendered by the
+     * emulator meaning they will always be on top of all windows. They are rendered in the order
+     * they're registered to the manager, meaning newly registered elements will be rendered over
+     * the top of older registered elements.
+     *
      * @return the render manager for the emulator application
      */
     public IManager<IRendered> getRenderManager();
 
     /**
+     * The device manager is simply a place where all created devices are tracked so that
+     * when the emulator is shutting down it may instruct all devices to do the same. Invoking
+     * either of the `manage` methods on this will have no effect.
+     *
      * @return the device manager for the emulator application
      */
     public IManager<IDevice> getDeviceManager();
 
     /**
+     * The window manager ensures that windows are rendered in the correct order, invoking
+     * the `manage` method on this manager will render all the devices, while invoking
+     * the parametrised `manage` method will cause that window to gain focus.
+     * <p/>
+     * Objects that are an {@link com.theoriginalbit.faux.api.IWindow} are rendered before
+     * any {@link com.theoriginalbit.faux.api.IRendered} objects.
+     *
      * @return the window manager for the emulator application
      */
     public IManager<IWindow> getWindowManager();

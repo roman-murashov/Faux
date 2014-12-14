@@ -21,13 +21,17 @@ import com.theoriginalbit.faux.api.IRendered;
  * @author theoriginalbit
  */
 public class RenderManager extends Manager<IRendered> {
+    public RenderManager() {
+        super("Render");
+    }
+
     @Override
     public void manage() {
 
     }
 
     @Override
-    public void invalidate(IRendered item) {
+    public void manage(IRendered item) {
 
     }
 }

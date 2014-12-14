@@ -21,13 +21,28 @@ import com.theoriginalbit.faux.api.IWindow;
  * @author theoriginalbit
  */
 public class WindowManager extends Manager<IWindow> {
-    @Override
-    public void manage() {
-
+    public WindowManager() {
+        super("Window");
     }
 
     @Override
-    public void invalidate(IWindow item) {
+    public boolean register(IWindow window) {
+        if (super.register(window)) {
+            manage(window); // focus the window
+            return true;
+        }
+        return false;
+    }
 
+    @Override
+    public void manage() {
+        // TODO: make this respect z-index and focused window
+        for (IWindow window : items) {
+            window.draw(null);
+        }
+    }
+
+    @Override
+    public void manage(IWindow item) {
     }
 }

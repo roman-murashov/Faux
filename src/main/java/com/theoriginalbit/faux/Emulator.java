@@ -29,6 +29,7 @@ import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.io.File;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author theoriginalbit
@@ -36,7 +37,9 @@ import java.io.File;
 public final class Emulator implements IEmulatorInstance {
     public static final Application APP = Application.getApplication();
     public static final File DATASTORE = OperatingSystem.getDataStore();
-    private static final int MAX_FPS = 60;
+    public static final EmulatorSettings SETTINGS = new EmulatorSettings();
+    private static final AtomicReference<Dimension> newCanvasSize = new AtomicReference<Dimension>();
+    private static final int MAX_FPS = 30;
 
     private final JFrame window;
     private final Canvas contentCanvas;
@@ -49,7 +52,6 @@ public final class Emulator implements IEmulatorInstance {
     private final Thread tickThread;
 
     private boolean running;
-    private boolean canvasSizeChanged;
 
     public Emulator(JFrame frame) {
         window = frame;
@@ -69,7 +71,7 @@ public final class Emulator implements IEmulatorInstance {
         contentCanvas.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                canvasSizeChanged = true;
+                newCanvasSize.set(contentCanvas.getSize());
             }
         });
         Thread.currentThread().setName(AppInfo.NAME + " Main");
@@ -160,37 +162,48 @@ public final class Emulator implements IEmulatorInstance {
         return tickManager.getSystemTime();
     }
 
+    public static EmulatorSettings getEmulatorSettings() {
+        return SETTINGS;
+    }
+
     public final void run() {
         Log.info(AppInfo.NAME + " started!");
         try {
-            while (isRunning()) {
-                // if the canvas was re-sized, inform OpenGL/LWJGL
-                if (canvasSizeChanged) {
-                    Log.debug("Canvas has been re-sized to W: %d H: %d", contentCanvas.getWidth(), contentCanvas.getHeight());
-                    Bootstrap.setupDisplay(this);
-                    canvasSizeChanged = false;
+            try {
+                Dimension newDim;
+                while (isRunning()) {
+                    // if the canvas was re-sized, inform OpenGL/LWJGL
+                    newDim = newCanvasSize.getAndSet(null);
+                    if (newDim != null) {
+                        Log.debug("Canvas has been re-sized to W: %d H: %d", contentCanvas.getWidth(), contentCanvas.getHeight());
+                        GL11.glViewport(0, 0, newDim.width, newDim.height);
+                    }
+
+                    // clear the display
+                    GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+
+                    // render any windows
+                    windowManager.manage();
+                    // render everything else
+                    renderManager.manage();
+
+                    // update the display
+                    Display.update();
+
+                    // process input
+                    inputManager.manage();
+
+                    Display.sync(MAX_FPS);
                 }
-
-                // clear the display
-                GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-
-                // render any windows
-                windowManager.manage();
-                // render everything else
-                renderManager.manage();
-
-                // update the display
-                Display.update();
-
-                // process input
-                inputManager.manage();
-
-                Display.sync(MAX_FPS);
+            } catch (OutOfMemoryError e) {
+                Log.fatal("Out of memory! Running garbage collector");
+                System.gc();
             }
         } catch (Throwable t) {
             Log.fatal("Exception in graphics/input loop", t);
             t.printStackTrace();
         } finally {
+            Display.destroy();
             if (isRunning()) {
                 shutdown();
             }
@@ -200,9 +213,6 @@ public final class Emulator implements IEmulatorInstance {
     public final void shutdown() {
         Log.info("Shutting down %s...", AppInfo.NAME);
         running = false;
-        if (Display.isCreated()) {
-            Display.destroy();
-        }
         window.dispose();
         deviceManager.stopDevices();
         stopThread(tickThread);

@@ -13,33 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.theoriginalbit.faux.manager;
-
-import com.theoriginalbit.faux.api.computercraft.IDevice;
-import com.theoriginalbit.faux.log.Log;
+package com.theoriginalbit.faux;
 
 /**
  * @author theoriginalbit
  */
-public class DeviceManager extends Manager<IDevice> {
-    public DeviceManager() {
-        super("Device");
+public final class EmulatorSettings {
+    private float guiScale;
+
+    public EmulatorSettings() {
+        guiScale = 2.0f;
     }
 
-    @Override
-    public void manage() {
-        // NO-OP
+    public float getGuiScale() {
+        return guiScale;
     }
 
-    @Override
-    public void manage(IDevice item) {
-        // NO-OP
-    }
-
-    public void stopDevices() {
-        for (IDevice device : items) {
-            Log.debug("Stopping device " + device.getID());
-            device.stop();
-        }
+    public void setGuiScale(float scale) {
+        guiScale = scale;
     }
 }

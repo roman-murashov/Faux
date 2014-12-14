@@ -22,4 +22,6 @@ public interface IDevice {
     public void stop();
 
     public int getID();
+
+    public void queueEvent(String event, Object... args);
 }

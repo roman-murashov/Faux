@@ -25,20 +25,25 @@ import java.util.ArrayList;
  */
 public abstract class Manager<E> implements IManager<E> {
     protected final ArrayList<E> items = new ArrayList<E>();
+    private final String name;
+
+    protected Manager(String managerName) {
+        name = managerName;
+    }
 
     @Override
     public boolean register(E item) {
-        if (!items.contains(item)) {
-            Log.warn("Attempting to register %s when it is already registered", item);
+        if (items.contains(item)) {
+            Log.warn("Attempting to register %s with the %s manager when it is already registered", item, name);
             return false;
         }
-        return items.remove(item);
+        return items.add(item);
     }
 
     @Override
     public boolean unregister(E item) {
         if (!items.contains(item)) {
-            Log.warn("Attempting to un-register %s when it was not registered", item);
+            Log.warn("Attempting to un-register %s with the %s manager when it was not registered", item, name);
             return false;
         }
         return items.remove(item);

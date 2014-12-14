@@ -29,9 +29,14 @@ public interface IManager<E> extends IRegistry<E> {
     public void manage();
 
     /**
-     * Specifies immediate management required on the supplied item
+     * Performs immediate processing of the supplied item; this can have different usages for the
+     * various managers.
+     *
+     * For example the {@link com.theoriginalbit.faux.api.IRendered} manager will immediately redraw
+     * the element. Whereas the {@link com.theoriginalbit.faux.api.IWindow} manager will bring the
+     * supplied window into focus.
      *
      * @param item the item to manage
      */
-    public void invalidate(E item);
+    public void manage(E item);
 }
